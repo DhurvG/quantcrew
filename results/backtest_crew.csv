@@ -1,0 +1,7 @@
+ticker,date,outcome_date,call,confidence,lean,fwd_return,strategy_return,debate_rounds,signals_changed_in_debate,status,sig_technical,conf_technical,weight_technical,sig_risk,conf_risk,weight_risk
+INFY.NS,2025-07-01,2025-07-29,HOLD,1.0,NONE,-0.05794,0.0,1,1,ok,HOLD,0.55,1.0,HOLD,0.55,1.0
+INFY.NS,2025-07-29,2025-08-28,SELL,1.0,SELL,-0.00898,0.0,1,0,ok,SELL,0.65,1.0,SELL,0.65,1.0
+INFY.NS,2025-08-28,2025-09-25,SELL,1.0,SELL,-0.0102,0.0,1,1,ok,SELL,0.42,1.0,SELL,0.55,1.0
+INFY.NS,2025-09-25,2025-10-27,SELL,1.0,SELL,0.02878,0.0,1,0,ok,SELL,0.65,1.0,SELL,0.78,1.0
+INFY.NS,2025-10-27,2025-11-25,HOLD,0.47,BUY,0.01735,0.0,1,0,ok,BUY,0.62,1.0,SELL,0.55,1.0
+INFY.NS,2025-11-25,2025-12-23,BUY,0.51,BUY,0.08996,0.08996,1,0,ok,BUY,0.62,1.0,HOLD,0.6,1.0

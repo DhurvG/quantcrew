@@ -1,0 +1,15 @@
+# secrets
+.env
+.streamlit/secrets.toml
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+# runtime data (the seeded trust store IS committed so the deployed app starts with it)
+data/*
+!data/.gitkeep
+!data/trust.json
+traces/*
+!traces/.gitkeep

@@ -1,0 +1,101 @@
+{
+  "status": "degraded",
+  "ticker": "TCS.NS",
+  "as_of": "2026-10-07",
+  "horizon": "short",
+  "recommendation": "HOLD",
+  "confidence": 1.0,
+  "weighted_score": 0.0,
+  "lean": "NONE",
+  "agent_votes": {
+    "technical": {
+      "weight": 1.0,
+      "signal": "HOLD",
+      "confidence": 0.42,
+      "vote": 0.0
+    }
+  },
+  "agent_opinions": {
+    "technical": {
+      "signal": "HOLD",
+      "confidence": 0.42,
+      "rationale": "The RSI at 43.19 is neutral and the MACD line is still below its signal line, though the histogram is +0.86, indicating a weak bullish tilt. Volume is only 0.77\u00d7 the 20\u2011day average, showing limited buying pressure. With no 50\u2011 or 200\u2011day SMA or 52\u2011week range data, the trend context is missing, so a cautious HOLD is justified for a short\u2011term horizon.",
+      "key_evidence": [
+        "RSI (14) = 43.19",
+        "MACD histogram = 0.864",
+        "Volume ratio vs 20d = 0.77"
+      ],
+      "round": 1
+    }
+  },
+  "failed_agents": {
+    "sentiment": "RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-20b` in organization `org_01m492gfzzejwss367wn0f5kad` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199997, Requested 841. Please try again in 6m2.016s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+    "risk": "RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-20b` in organization `org_01m492gfzzejwss367wn0f5kad` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199997, Requested 913. Please try again in 6m33.12s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}"
+  },
+  "debate": {
+    "rounds": 1,
+    "critiques": [
+      {
+        "challenges": [
+          {
+            "agent": "sentiment",
+            "issue": "Revenue growth figure (2.7%) is not supported by the fundamentals data, which show 13.9% YoY revenue growth (revenueGrowth = 0.139). The 2.7% number appears to be a quarter\u2011over\u2011quarter metric that is never quantified or linked to the short\u2011term horizon.",
+            "question": "Provide the exact source and period for the 2.7% revenue growth claim, or replace it with the correct YoY growth figure from the fundamentals."
+          },
+          {
+            "agent": "sentiment",
+            "issue": "Impact of the Best\u202fBuy GCC and AWS collaborations is described qualitatively with no estimate of incremental revenue, margin, or timing, which is essential for a short\u2011term BUY signal.",
+            "question": "Quantify the expected near\u2011term financial impact (e.g., incremental revenue or margin uplift) of these partnerships, or explain why they are relevant for a short\u2011term trade."
+          },
+          {
+            "agent": "sentiment",
+            "issue": "The 1.90% pre\u2011earnings rally is cited without a verifiable source or date; the claim is anecdotal.",
+            "question": "Cite a specific price\u2011movement source (date and percentage) that confirms the pre\u2011earnings rally, or remove the figure."
+          },
+          {
+            "agent": "technical",
+            "issue": "Technical rationale relies only on RSI (43.19), MACD histogram (+0.864) and volume ratio (0.77) and admits missing SMA/52\u2011week data, yet still concludes a HOLD with low confidence (0.45). The justification for HOLD over neutral or modest BUY/SELL is insufficient.",
+            "question": "Add additional technical indicators (e.g., SMA, 52\u2011week range) or explain why the limited data justify a HOLD rather than a neutral stance."
+          },
+          {
+            "agent": "risk",
+            "issue": "Risk metrics (annualised volatility 28.25%, max drawdown -38.46%, etc.) are correctly reported but the conclusion jumps to SELL/HOLD without a risk\u2011adjusted return analysis for the short horizon.",
+            "question": "Provide a risk\u2011adjusted outlook (e.g., expected upside vs. volatility\u2011scaled downside) to justify a SELL recommendation, or qualify the signal given the higher volatility alone does not dictate a negative short\u2011term stance."
+          }
+        ],
+        "needs_revision": true,
+        "summary": "The panel\u2019s arguments contain several unsupported or insufficiently quantified claims: the sentiment agent cites an unverified 2.7% revenue growth and speculative partnership impact; the technical agent offers a weak HOLD justification with limited indicators; and the risk agent concludes a SELL without a risk\u2011adjusted return framework. These weaknesses could change the overall signal, so the panel needs to revise its evidence and reasoning.",
+        "round": 1
+      }
+    ],
+    "revisions": [
+      {
+        "agent": "technical",
+        "round": 1,
+        "from": "HOLD",
+        "to": "HOLD",
+        "confidence_from": 0.45,
+        "confidence_to": 0.42,
+        "changed": false
+      }
+    ]
+  },
+  "trust": {
+    "technical": {
+      "n": 0,
+      "hits": 0,
+      "raw_accuracy": null,
+      "posterior_accuracy": 0.5,
+      "weight": 1.0,
+      "active": false
+    }
+  },
+  "narrative": {
+    "summary": "Narrative unavailable (RuntimeError); see agent opinions.",
+    "bull_case": [],
+    "bear_case": [],
+    "key_risks": [],
+    "what_would_change_the_view": []
+  },
+  "disclaimer": "QuantCrew is an academic decision-support prototype. Its output is advisory only, is not investment advice, and the system never places trades."
+}

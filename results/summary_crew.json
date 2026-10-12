@@ -1,0 +1,43 @@
+{
+  "periods": 6,
+  "calls": 6,
+  "strategy_cum_return_pct": 9.0,
+  "buy_hold_cum_return_pct": 5.42,
+  "strategy_sharpe": 1.45,
+  "buy_hold_sharpe": 0.71,
+  "strategy_max_drawdown_pct": 0.0,
+  "buy_hold_max_drawdown_pct": -1.91,
+  "time_in_market_pct": 16.7,
+  "directional_hit_rate": 0.75,
+  "call_mix": {
+    "SELL": 3,
+    "HOLD": 2,
+    "BUY": 1
+  },
+  "calls_changed_by_debate": 2,
+  "label": "crew",
+  "tickers": [
+    "INFY.NS"
+  ],
+  "start": "2025-07-01",
+  "end": "2025-12-31",
+  "horizon": "medium",
+  "final_trust": {
+    "technical": {
+      "n": 3,
+      "hits": 1,
+      "raw_accuracy": 0.333,
+      "posterior_accuracy": 0.462,
+      "weight": 1.0,
+      "active": false
+    },
+    "risk": {
+      "n": 3,
+      "hits": 0,
+      "raw_accuracy": 0.0,
+      "posterior_accuracy": 0.385,
+      "weight": 1.0,
+      "active": false
+    }
+  }
+}
