@@ -22,7 +22,9 @@ class FundamentalAgent(ToolUsingAgent):
         "Read the 'units' note in the tool result before interpreting any figure. "
         "You have NO tool for sector or peer averages: never state a sector average, peer figure or "
         "benchmark from memory. If asked for a peer comparison, say it is unavailable and lower your "
-        "confidence instead.")
+        "confidence instead. annual_trend contains ONLY Total Revenue and Net Income for the years "
+        "listed; margins and ratios are current values only. Never state a figure for a year or metric "
+        "that is not in the tool result.")
 
 
 class TechnicalAgent(ToolUsingAgent):

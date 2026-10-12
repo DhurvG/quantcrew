@@ -223,7 +223,8 @@ def decide(state: QCState) -> dict:
             narrative = structured_invoke(get_llm(), Narrative,
                 "You are the QuantCrew Orchestrator writing the final research note. The recommendation has already "
                 "been computed by trust-weighted vote; explain it, do not change it. Use only figures that appear "
-                "in the agent opinions.\n"
+                "in the agent opinions. Do not add comparisons with peers, sectors or past years unless "
+                "those exact numbers appear in the opinions.\n"
                 f"Stock: {state['ticker']}\nHorizon: {state['plan']['horizon']}\nQuestion: {state['question']}\n"
                 f"Recommendation: {agg['recommendation']} (score {agg['score']}, confidence {agg['confidence']}, "
                 f"lean {agg['lean']})\n"
