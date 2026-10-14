@@ -33,3 +33,15 @@ def test_prior_shrinks_a_short_lucky_streak(tmp_path):
         s.add_outcome("lucky", str(i), "X", "BUY", 0.05)
     # 15/15 raw accuracy, but the Beta(5,5) prior keeps the estimate well below 1
     assert s.stats("lucky")["posterior_accuracy"] < 0.85
+
+def test_rolling_window_forgets_old_calls(tmp_path):
+    from quantcrew.config import TRUST_WINDOW
+    s = TrustStore(tmp_path / "t.json")
+    for i in range(TRUST_WINDOW):
+        s.add_outcome("technical", f"old-{i}", "X", "BUY", -0.05)
+    assert s.stats("technical")["weight"] <= 0.6
+    for i in range(TRUST_WINDOW):
+        s.add_outcome("technical", f"new-{i}", "X", "BUY", 0.05)
+    stats = s.stats("technical")
+    assert stats["n"] == TRUST_WINDOW
+    assert stats["weight"] > 1.3
