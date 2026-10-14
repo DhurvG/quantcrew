@@ -28,9 +28,9 @@ pip install -r requirements.txt
 cp .env.example .env    # then put your API keys in .env
 ```
 
-`QUANTCREW_PROFILE=groq` uses Groq's free tier (development); `claude` uses Claude Haiku 5.5
-(backtest and demo). In PowerShell you can switch for one terminal session with
-`$env:QUANTCREW_PROFILE="claude"`.
+The submitted system runs on Groq's free tier (`QUANTCREW_PROFILE=groq`): gpt-oss-20b for the
+Orchestrator and specialists, gpt-oss-120b for the Critic. `QUANTCREW_PROFILE=claude` switches every
+role to Claude Haiku 5.5 if a paid key is available.
 
 ## Run
 
@@ -43,18 +43,17 @@ python -m scripts.update_trust                                # score past live 
 
 Every run writes its execution trace (every agent message and tool call) to `traces/`.
 
-## Evaluation (backtest + ablation)
+## Evaluation (pilot backtest)
 
 ```bash
-python -m scripts.backtest --tickers INFY,HDFCBANK,RELIANCE --start 2024-06-01 --end 2025-12-31
-python -m scripts.backtest --tickers INFY,HDFCBANK,RELIANCE --start 2024-06-01 --end 2025-12-31 --no-debate
-python -m scripts.backtest --tickers INFY,HDFCBANK,RELIANCE --start 2024-06-01 --end 2025-12-31 --agents technical
-python -m scripts.backtest --tickers INFY,HDFCBANK,RELIANCE --start 2024-06-01 --end 2025-12-31 --agents risk
+python -m scripts.backtest --tickers INFY --start 2025-07-01 --end 2025-12-31                     # full crew
+python -m scripts.backtest --tickers INFY --start 2025-07-01 --end 2025-12-31 --agents technical  # single agent
 python -m scripts.compare_backtests      # -> results/comparison.md
-python -m scripts.seed_trust             # live app starts from the crew backtest's track record
 ```
 
-Add `--resume` to continue an interrupted run. Results land in `results/`.
+A 6-decision pilot on INFY fits the free API tier; results are in `results/`. The same scripts run
+the full study (more stocks, `--no-debate`, `--agents risk`) with a paid key. Add `--resume` to
+continue an interrupted run.
 
 ## Repository layout
 
@@ -67,7 +66,7 @@ quantcrew/
   trust.py     outcome-based trust weights (pure, tested)
   state.py     shared blackboard state
   trace.py     execution-trace capture
-scripts/       CLI run, trust update/seeding, backtest, ablation comparison
+scripts/       CLI run, trust update, backtest, ablation comparison
 tests/         unit tests: indicators, risk, decisions, trust, routing, plans, data cleaning, backtest
 docs/          design document, I/O definitions, real sample input/output/trace
 results/       backtest outputs and the comparison table
@@ -80,14 +79,17 @@ results/       backtest outputs and the comparison table
    Under Advanced settings choose Python 3.12.
 3. In Secrets, add:
    ```toml
-   ANTHROPIC_API_KEY = "sk-ant-..."
-   QUANTCREW_PROFILE = "claude"
+   GROQ_API_KEY = "gsk_..."
+   QUANTCREW_PROFILE = "groq"
    ```
-4. `data/trust.json` (seeded from the backtest) is committed so the deployed app starts with it.
-   Live calls logged on the server are lost on redeploy; that is acceptable for a demo.
+4. Live app: https://quantcrew-kn4cvvrt6apppkycthnbs7y.streamlit.app
+   Trust weights start neutral (1.0) and change only after 15 scored calls per agent. Calls logged
+   on the server are lost on redeploy; that is acceptable for a demo.
 
 ## Known limitations
 
+- The pilot backtest (6 decisions on one stock) is far too small for statistical conclusions; it was
+  limited by the free API tier (~200k tokens per model per day).
 - yfinance offers only current fundamentals and recent news, so backtests exclude the Fundamental
   and Sentiment agents to avoid look-ahead bias.
 - Backtests ignore transaction costs and slippage.
