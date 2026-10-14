@@ -21,7 +21,6 @@ flowchart TD
     D -->|FinalReport| U
     D -->|log each agent's signal| L[(recommendations.jsonl)]
     L -->|after horizon elapses| UT[update_trust]
-    BT[Backtest] -->|scored calls| TS
     UT -->|outcomes| TS[(trust.json)]
     TS -->|weights| D
 ```
@@ -46,18 +45,12 @@ Every specialist runs a ReAct loop (`agents/base.py`): the LLM chooses which too
 results including errors, may call more tools, then commits to a structured `AgentOpinion`. If the
 model produces an invalid tool call, it is told so and allowed to try again.
 
-**Model choice per agent.** Models are chosen by a profile setting (`QUANTCREW_PROFILE`):
-
-| Profile | Orchestrator + specialists | Critic | Used for |
-|---|---|---|---|
-| `groq` | gpt-oss-20b (Groq, free tier) | gpt-oss-120b (Groq, free tier) | Development and testing |
-| `claude` | Claude Haiku 5.5 | Claude Haiku 5.5 | Backtest, deployed app, demo |
-
-On the free tier, the Critic gets the stronger model because it must verify other agents' numbers,
-and Groq's daily limits are per model, so splitting roles also spreads the load. For the backtest and
-demo, one fast, low-cost model (about 1 cent per analysis) serves every role: a backtest makes
-hundreds of calls, and a paid tier removes the risk of hitting a daily limit during the live demo.
-Any role can be overridden individually, e.g. a stronger Critic via `QUANTCREW_CRITIC_MODEL`.
+**Model choice per agent.** All agents run on Groq's free tier: the Orchestrator and four
+specialists on gpt-oss-20b, the Critic on gpt-oss-120b. Specialists do narrow, tool-grounded work, so
+a fast model suffices; the Critic must verify other agents' numbers and spot contradictions, so it
+gets the strongest model. Groq's daily token limit is counted per model, so splitting the roles also
+doubles the daily budget. The provider is configurable (`QUANTCREW_PROFILE=claude` switches every
+role to Claude Haiku 5.5), but the submitted and deployed system uses the free tier.
 
 ## 3. Orchestration pattern
 
@@ -80,7 +73,7 @@ arbiter keeps the number of LLM calls predictable and makes every decision trace
 | LangGraph | Native parallel fan-out (`Send`), conditional cycles for the debate loop, typed shared state with reducers, streaming updates for the UI |
 | Custom ReAct loop instead of a prebuilt agent | Every tool call and thought is captured in the trace, and the team can explain every line |
 | `init_chat_model` | One setting switches provider/model per role |
-| Groq free tier → Claude Haiku 5.5 | Free Groq models for development; Groq's 200k tokens/day limit could not support the backtest or a reliable demo, so those use Claude Haiku 5.5 |
+| Groq free tier (gpt-oss-20b / gpt-oss-120b) | Fast inference at no cost. The ~200k tokens/day limit per model shaped the design: one debate round, at most 3 tool steps per agent, at most 2 agents calling the API at once, no LLM planner or narrative in backtests, and a resumable backtest |
 | Structured output with fallbacks | JSON-schema mode first, then function calling, then plain JSON validated by Pydantic; models differ in which they support reliably |
 | yfinance + Google News RSS | Free NSE prices and fundamentals; Yahoo's NSE news is often empty, so Google News (last 7 days, searched by company name) is the fallback |
 | Deterministic weighted vote for the final call | The LLM explains the decision but cannot overrule the evidence |
@@ -107,18 +100,31 @@ noisy short-term outcomes:
 4. **Rolling window** — only the last 60 scored calls count, so the system adapts to regime changes.
 5. **Clamp** — weights stay within [0.5, 1.5]; no agent is silenced or dominant.
 
-Weight = clamp(posterior accuracy / 0.5). Live calls are logged and scored by `scripts/update_trust.py`.
-The deployed app's store is seeded from the backtest (`scripts/seed_trust.py`), so Technical and Risk
-start with real track records; Fundamental and Sentiment start neutral because they cannot be backtested.
+Weight = clamp(posterior accuracy / 0.5). Live calls are logged and scored by `scripts/update_trust.py`
+once their horizon has elapsed. In the submitted system every weight is still 1.0: no agent has yet
+reached 15 scored calls, which is the minimum-sample guard working as intended.
 
-## 7. Evaluation plan
+## 7. Evaluation
 
-`scripts/backtest.py` walks forward through history, analysing each stock every N trading days with
+`scripts/backtest.py` walks forward through history, analysing a stock every 20 trading days with
 data up to that date only. The loop is date-major and feeds each call's outcome into trust only once
-it is known, so there is no look-ahead. Configurations compared (`scripts/compare_backtests.py`):
-full crew, crew without debate, Technical only, Risk only, each against equal-weight buy-and-hold.
-Metrics: cumulative return, Sharpe, max drawdown, time in market, directional hit rate, and how
-often the debate changed a call.
+it is known, so there is no look-ahead. Strategy: hold the stock for 20 days on BUY, otherwise cash.
+
+**Pilot run (INFY, Jul–Dec 2025, 6 decisions, 20-day horizon), within the free API budget:**
+
+| Configuration | Return | Buy & hold | Sharpe | B&H Sharpe | Max DD | Time in market | Hit rate | Calls changed by debate |
+|---|---|---|---|---|---|---|---|---|
+| Full crew (Technical + Risk + Critic) | +9.0% | +5.4% | 1.45 | 0.71 | 0.0% | 17% | 0.75 | 2 |
+| Technical agent only | +10.9% | +5.4% | 1.76 | 0.71 | 0.0% | 33% | 1.00 | — |
+
+Both beat buy-and-hold, but one +9% trade (25 Nov 2025, called BUY by both) drives most of the
+result, so six decisions support no statistical conclusion. The crew was more conservative: the
+Risk agent's caution turned a profitable BUY on 27 Oct into HOLD. The Risk agent's three scored
+calls were all wrong, so its posterior accuracy fell to 0.385; once it reaches 15 scored calls the
+trust mechanism would lower its weight to about 0.77. This is the adaptation the design intends.
+
+The scripts also support the full study planned in the proposal (more stocks, `--no-debate`,
+`--agents risk`); it was not run because of the free tier's daily token limit.
 
 Limitations: no point-in-time fundamentals or news in yfinance, so those agents are excluded from
 backtests; no transaction costs; LLMs may carry knowledge of the backtest period; LLM outputs vary
@@ -150,3 +156,4 @@ between runs (temperature is 0, and the debate and weighted vote reduce but don'
 | One confident BUY outvoting two HOLDs | Majority-conviction rule |
 | HOLD reported with 0% confidence | HOLD confidence and lean defined |
 | Rate limit during revision discarded valid opinions | Earlier opinion kept |
+| Deployed run invented historical margins and peer ranges | Prompts restrict figures to tool results; annual_trend contents stated explicitly |
